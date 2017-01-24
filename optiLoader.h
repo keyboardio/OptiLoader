@@ -22,4 +22,4 @@ typedef struct alias {
 #define FUSE_EXT 3			/* Extended fuse */
 
 // Forward decl
-extern const image_t PROGMEM image_328, image_328p, image_168, image_8;
+extern const image_t PROGMEM image_tiny88, image_32u4;
