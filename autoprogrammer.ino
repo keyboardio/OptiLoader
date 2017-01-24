@@ -28,34 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //-------------------------------------------------------------------------------------
 
-//
-// Designed to connect to a generic programming cable,
-// using the following pins:
-// 10: slave reset
-// 11: MOSI
-// 12: MISO
-// 13: SCK
-//  9: Power to external chip.
-//     This is a little questionable, since the power it is legal to draw
-//     from a PIC pin is pretty close to the power consumption of an AVR
-//     chip being programmed.  But it permits the target to be entirely
-//     powered down for safe reconnection of the programmer to additional
-//     targets, and it seems to work for most Arduinos.  If the target board
-//     contains additional circuitry and is expected to draw more than 40mA,
-//     connect the target power to a stronger source of +5V.  Do not use pin
-//     9 to power more complex Arduino boards that draw more than 40mA, such
-//     as the Arduino Uno Ethernet !
-//
-// If the aim is to reprogram the bootloader in one Arduino using another
-// Arudino as the programmer, you can just use jumpers between the connectors
-// on the Arduino board.  In this case, connect:
-// Pin 13 to Pin 13
-// Pin 12 to Pin 12
-// Pin 11 to Pin 11
-// Pin 10 (of "programmer") to RESET (of "target" (on the "power" connector))
-// +5V to +5V and GND to GND.  Only the "programmer" board should be powered
-//     by USB or external power.
-//
 
 #include <avr/pgmspace.h>
 #include "autoprogrammer.h"
