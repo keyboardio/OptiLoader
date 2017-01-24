@@ -1,8 +1,7 @@
-// optiLoader.pde
+// autoprogrammer.ino
 //
-// this sketch allows an Arduino to program Optiboot onto any other
-// Arduino-like device containing ATmega8, ATmega168, or ATmega328
-// microcontroller chips.
+// this sketch allows an AVR to program another AVR containing one 
+// of a number of different MCUs
 //
 // Copyright (c) 2011, 2015 by Bill Westfield ("WestfW")
 
@@ -26,12 +25,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //-------------------------------------------------------------------------------------
 
-//
-// this sketch allows an Arduino to program Optiboot onto any other
-// Arduino-like device containing ATmega8, ATmega168, or ATmega328
-// microcontroller chips.
-//
-// It is based on AVRISP
+// It is based on Optiloader.ino, which in turn was based on AVRISP
 //
 // Designed to connect to a generic programming cable,
 // using the following pins:
@@ -82,7 +76,7 @@
 
 
 #include <avr/pgmspace.h>
-#include "optiLoader.h"
+#include "autoprogrammer.h"
 #include "images.h"
 
 char Arduino_preprocessor_hint;
