@@ -2,7 +2,7 @@
  * Table of defined images
  */
 const image_t * images[] = {
-  &image_32u4, &image_tiny88, 0
+    &image_32u4, &image_tiny88, 0
 };
 
 /*
@@ -37,28 +37,28 @@ const alias_t aliases[] = {
 
 
 const image_t PROGMEM image_32u4 = {
-  { "firmware_atmega32u4.hex"    } ,
-  { "atmega32u4"    } ,
-  0x9587,				/* Signature bytes for 32u4 */
-  { 0x3F,0xFF,0xD8,0xCB,0    } ,
-  { 0x2F,0,0,0,0    } ,
-  128,
-  {
+    { "firmware_atmega32u4.hex"    } ,
+    { "atmega32u4"    } ,
+    0x9587,				/* Signature bytes for 32u4 */
+    { 0x3F,0xFF,0xD8,0xCB,0    } ,
+    { 0x2F,0,0,0,0    } ,
+    128,
+    {
 #include "generated/atmega32u4.h"
-  }
+    }
 };
 
 
 const image_t PROGMEM image_tiny88 = {
-  { "firmware_attiny88.hex"    } ,
-  { "attiny88"    } ,
-  0x9311,				/* Signature bytes for Tiny88 */
-  { 0x3F, 0xEE, 0xDD, 0xFE, 0    } ,
-  { 0x2F,0,0,0,0    } ,
-  64,
-  {
+    { "firmware_attiny88.hex"    } ,
+    { "attiny88"    } ,
+    0x9311,				/* Signature bytes for Tiny88 */
+    { 0x3F, 0xEE, 0xDD, 0xFE, 0    } ,
+    { 0x2F,0,0,0,0    } ,
+    64,
+    {
 #include "generated/attiny88.h"
-  }
+    }
 };
 
 
