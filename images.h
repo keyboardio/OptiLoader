@@ -44,7 +44,7 @@ const image_t PROGMEM image_32u4 = {
   { 0x2F,0,0,0,0    } ,
   128,
   {
-#include "atmega32u4.h"
+#include "generated/atmega32u4.h"
   }
 };
 
@@ -57,7 +57,7 @@ const image_t PROGMEM image_tiny88 = {
   { 0x2F,0,0,0,0    } ,
   64,
   {
-#include "attiny88.h"
+#include "generated/attiny88.h"
   }
 };
 

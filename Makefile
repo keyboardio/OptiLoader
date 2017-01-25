@@ -1,7 +1,8 @@
 process-images:
-	cp images/atmega32u4_factory.hex atmega32u4.h
-	cp images/attiny88_factory.hex attiny88.h
-	perl -pi -e's|^([:0-9A-Z]*)|"$$1\\n"|i' atmega32u4.h attiny88.h
+	-mkdir generated
+	cp images/atmega32u4_factory.hex generated/atmega32u4.h
+	cp images/attiny88_factory.hex generated/attiny88.h
+	perl -pi -e's|^([:0-9A-Z]*)|"$$1\\n"|i' generated/atmega32u4.h generated/attiny88.h
 build:
 	/usr/local/arduino/arduino-builder \
 	-compile \
