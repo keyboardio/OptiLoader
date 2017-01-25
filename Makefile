@@ -19,3 +19,9 @@ build:
 	-prefs=runtime.tools.arduinoOTA.path=/usr/local/arduino/hardware/tools/avr \
 	-prefs=runtime.tools.avr-gcc.path=/usr/local/arduino/hardware/tools/avr \
 	-verbose /home/jesse/git/autoprogrammer/autoprogrammer.ino
+
+astyle:
+	find . -type f -name \*.cpp |xargs -n 1 astyle --style=google
+	find . -type f -name \*.ino |xargs -n 1 astyle --style=google
+	find . -type f -name \*.h |xargs -n 1 astyle --style=google
+
