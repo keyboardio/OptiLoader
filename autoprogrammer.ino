@@ -384,38 +384,29 @@ boolean target_findimage () {
  * the optiboot image to be programmed.
  */
 
-boolean target_progfuses () {
-    uint8_t f;
-    fp("\nSetting fuses for programming");
+void target_setfuse(uint8_t f, uint8_t fuse_byte) {
 
-    f = pgm_read_byte(&target_flashptr->image_progfuses[FUSE_PROT]);
     if (f) {
         fp("\n  Lock: ");
         Serial.print(f, HEX);
         fp(" ");
-        Serial.print(spi_transaction(0xAC, 0xE0, 0x00, f), HEX);
+        Serial.print(spi_transaction(0xAC, fuse_byte, 0x00, f), HEX);
     }
-    f = pgm_read_byte(&target_flashptr->image_progfuses[FUSE_LOW]);
-    if (f) {
-        fp("  Low: ");
-        Serial.print(f, HEX);
-        fp(" ");
-        Serial.print(spi_transaction(0xAC, 0xA0, 0x00, f), HEX);
-    }
-    f = pgm_read_byte(&target_flashptr->image_progfuses[FUSE_HIGH]);
-    if (f) {
-        fp("  High: ");
-        Serial.print(f, HEX);
-        fp(" ");
-        Serial.print(spi_transaction(0xAC, 0xA8, 0x00, f), HEX);
-    }
-    f = pgm_read_byte(&target_flashptr->image_progfuses[FUSE_EXT]);
-    if (f) {
-        fp("  Ext: ");
-        Serial.print(f, HEX);
-        fp(" ");
-        Serial.print(spi_transaction(0xAC, 0xA4, 0x00, f), HEX);
-    }
+
+}
+
+
+boolean target_progfuses () {
+    uint8_t f;
+    fp("\nSetting fuses for programming");
+    fp("\n  Lock: ");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_PROT]), 0xE0);
+    fp("  Low: ");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_LOW]), 0xA0);
+    fp("  High: ");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_HIGH]), 0xA8);
+    fp("  Ext: ");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_EXT]), 0xA4);
     Serial.println();
     return true; 			/* */
 }
@@ -451,37 +442,16 @@ boolean target_program () {
  * based programming
  */
 boolean target_normfuses () {
-    uint8_t f;
     fp("\nRestoring normal fuses");
-
-    f = pgm_read_byte(&target_flashptr->image_normfuses[FUSE_PROT]);
-    if (f) {
-        fp("\n  Lock: ");
-        Serial.print(f, HEX);
-        fp(" ");
-        Serial.print(spi_transaction(0xAC, 0xE0, 0x00, f), HEX);
-    }
-    f = pgm_read_byte(&target_flashptr->image_normfuses[FUSE_LOW]);
-    if (f) {
-        fp("  Low: ");
-        Serial.print(f, HEX);
-        fp(" ");
-        Serial.print(spi_transaction(0xAC, 0xA0, 0x00, f), HEX);
-    }
-    f = pgm_read_byte(&target_flashptr->image_normfuses[FUSE_HIGH]);
-    if (f) {
-        fp("  High: ");
-        Serial.print(f, HEX);
-        fp(" ");
-        Serial.print(spi_transaction(0xAC, 0xA8, 0x00, f), HEX);
-    }
-    f = pgm_read_byte(&target_flashptr->image_normfuses[FUSE_EXT]);
-    if (f) {
-        fp("  Ext: ");
-        Serial.print(f, HEX);
-        fp(" ");
-        Serial.print(spi_transaction(0xAC, 0xA4, 0x00, f), HEX);
-    }
+    fp("\n  Lock: ");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_PROT]), 0xE0);
+    fp("  Low: ");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_LOW]), 0xA0);
+    fp("  High: ");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_HIGH]), 0xA8);
+    fp("  Ext: ");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_EXT]), 0xA4);
+    
     Serial.println();
     return true; 			/* */
 }
