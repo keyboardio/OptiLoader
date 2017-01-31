@@ -253,15 +253,15 @@ uint8_t attempt_flash(void) {
 
 
 void read_image (const image_t *ip) {
-    uint16_t len, totlen=0, addr;
+    uint16_t line_length, addr;
     uint8_t hextext = &ip->image_hexcode_ptr;
     target_startaddr = 0;
     target_pagesize = pgm_read_byte(&ip->image_pagesize);
     uint8_t b, cksum = 0;
 
     while (1) {
-        len = pgm_read_byte(hextext++);
-        cksum = len;
+        line_length = pgm_read_byte(hextext++);
+        cksum = line_length;
 
         addr = pgm_read_byte(hextext++); /* address - first byte */
         cksum += addr;
@@ -272,19 +272,16 @@ void read_image (const image_t *ip) {
 
         if (target_startaddr == 0) {
             target_startaddr = addr;
-            Serial.print("  Start address at ");
-            Serial.println(addr, HEX);
         } else if (addr == 0) {
             break;
         }
 
         cksum += pgm_read_byte(hextext++); /* record type */
 
-        for (uint8_t i=0; i < len; i++) {
+        for (uint8_t i=0; i < line_length; i++) {
             b = pgm_read_byte(hextext++); /* data */
             target_code[addr++ - target_startaddr] = b;
             cksum += b;
-            totlen++;
         }
         cksum += pgm_read_byte(hextext++); /* checksum */
         if (cksum != 0) {
