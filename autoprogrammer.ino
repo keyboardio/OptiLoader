@@ -265,6 +265,16 @@ uint8_t attempt_flash(void) {
  * Also read other data from the image, such as fuse and protecttion byte
  * values during programming, and for after we're done.
  */
+
+uint8_t read_hexdata(char *hextext) {
+    uint8_t data;
+    data = hexton(pgm_read_byte(hextext++));
+    data = (data <<4) + hexton(pgm_read_byte(hextext++));
+
+    return data;
+}
+
+
 void read_image (const image_t *ip) {
     uint16_t len, totlen=0, addr;
     const char *hextext = &ip->image_hexcode[0];
@@ -277,18 +287,17 @@ void read_image (const image_t *ip) {
             Serial.println("ERROR: no colon");
             break;
         }
-        len = hexton(pgm_read_byte(hextext++));
-        len = (len<<4) + hexton(pgm_read_byte(hextext++));
+        len = read_hexdata(hextext);
         cksum = len;
 
-        b = hexton(pgm_read_byte(hextext++)); /* record type */
-        b = (b<<4) + hexton(pgm_read_byte(hextext++));
+        b = read_hexdata(hextext); /* record type */
         cksum += b;
         addr = b;
-        b = hexton(pgm_read_byte(hextext++)); /* record type */
-        b = (b<<4) + hexton(pgm_read_byte(hextext++));
+
+        b = read_hexdata(hextext); /* record type */
         cksum += b;
         addr = (addr << 8) + b;
+
         if (target_startaddr == 0) {
             target_startaddr = addr;
             Serial.print("  Start address at ");
@@ -297,13 +306,11 @@ void read_image (const image_t *ip) {
             break;
         }
 
-        b = hexton(pgm_read_byte(hextext++)); /* record type */
-        b = (b<<4) + hexton(pgm_read_byte(hextext++));
-        cksum += b;
+        // TODO: Why are are we throwing away this?
+        cksum += read_hexdata(hextext); /* record type */
 
         for (uint8_t i=0; i < len; i++) {
-            b = hexton(pgm_read_byte(hextext++));
-            b = (b<<4) + hexton(pgm_read_byte(hextext++));
+            b = read_hexdata(hextext); /* record type */
             if (addr - target_startaddr >= sizeof(target_code)) {
                 Serial.println("ERROR: Code extends beyond allowed range");
                 break;
@@ -320,9 +327,7 @@ void read_image (const image_t *ip) {
                 break;
             }
         }
-        b = hexton(pgm_read_byte(hextext++)); /* checksum */
-        b = (b<<4) + hexton(pgm_read_byte(hextext++));
-        cksum += b;
+        cksum += read_hexdata(hextext); /* checksum */
         if (cksum != 0) {
             Serial.println("ERROR: Bad checksum: ");
             Serial.print(cksum, HEX);
