@@ -49,11 +49,6 @@ char Arduino_preprocessor_hint;
 #define STK_FAILED 0x11
 
 
-// Useful message printing definitions
-#define fp(string) flashprint(PSTR(string));
-#define debug(string) // flashprint(PSTR(string));
-#define error(string) flashprint(PSTR(string));
-
 // Forward references
 void pulse(int pin, int times);
 void read_image(const image_t *ip);
@@ -79,7 +74,7 @@ void setup (void) {
 }
 
 void loop (void) {
-    fp("\nOptiLoader Bootstrap programmer.\n2011 by Bill Westfield (WestfW)\n\n");
+    Serial.print("\nOptiLoader Bootstrap programmer.\n2011 by Bill Westfield (WestfW)\n\n");
     if (target_poweron()) {		/* Turn on target power */
         do {
             if (!target_identify()) 		/* Figure out what kind of CPU */
@@ -97,7 +92,7 @@ void loop (void) {
     }
     target_poweroff(); 			/* turn power off */
 
-    fp ("\nType 'G' or hit RESET for next chip\n")
+    Serial.print ("\nType 'G' or hit RESET for next chip\n")
     while (1) {
         if (Serial.read() == 'G')
             break;
@@ -128,7 +123,9 @@ uint8_t hexton (uint8_t h) {
         return(h - '0');
     if (h >= 'A' && h <= 'F')
         return((h - 'A') + 10);
-    error("Bad hex digit!");
+    Serial.print("ERROR: Bad hex digit: ");
+    Serial.print(h);
+    Serial.println("");
     return(0);
 }
 
@@ -162,7 +159,6 @@ void spi_init (void) {
  * wait for SPI transfer to complete
  */
 void spi_wait (void) {
-    debug("spi_wait");
     do {
     } while (!(SPSR & (1 << SPIF)));
 }
@@ -193,17 +189,17 @@ uint8_t spi_send (uint8_t b) {
 boolean target_identify () {
     boolean result;
     target_type = 0;
-    fp("\nReading signature:");
+    Serial.print("\nReading signature:");
     target_type = read_signature();
     if (target_type == 0 || target_type == 0xFFFF) {
-        fp(" Bad value: ");
+        Serial.print(" Bad value: ");
         result = false;
     } else {
         result = true;
     }
     Serial.println(target_type, HEX);
     if (target_type == 0) {
-        fp("  (no target attached?)\n");
+        Serial.print("  (no target attached?)\n");
     }
     return result;
 }
@@ -222,7 +218,6 @@ uint16_t start_pmode () {
 
     pinMode(13, INPUT); // restore to default
     spi_init();
-    debug("...spi_init done");
     // following delays may not work on all targets...
     pinMode(RESET, OUTPUT);
     digitalWrite(RESET, HIGH);
@@ -233,9 +228,7 @@ uint16_t start_pmode () {
     delay(50);
     pinMode(MISO, INPUT);
     pinMode(MOSI, OUTPUT);
-    debug("...spi_transaction");
     result = spi_transaction(0xAC, 0x53, 0x00, 0x00);
-    debug("...Done");
     pmode = 1;
     return result;
 }
@@ -271,7 +264,7 @@ void read_image (const image_t *ip) {
 
     while (1) {
         if (pgm_read_byte(hextext++) != ':') {
-            error("No colon");
+            Serial.println("ERROR: no colon");
             break;
         }
         len = hexton(pgm_read_byte(hextext++));
@@ -288,7 +281,7 @@ void read_image (const image_t *ip) {
         addr = (addr << 8) + b;
         if (target_startaddr == 0) {
             target_startaddr = addr;
-            fp("  Start address at ");
+            Serial.print("  Start address at ");
             Serial.println(addr, HEX);
         } else if (addr == 0) {
             break;
@@ -302,7 +295,7 @@ void read_image (const image_t *ip) {
             b = hexton(pgm_read_byte(hextext++));
             b = (b<<4) + hexton(pgm_read_byte(hextext++));
             if (addr - target_startaddr >= sizeof(target_code)) {
-                error("Code extends beyond allowed range");
+                Serial.println("ERROR: Code extends beyond allowed range");
                 break;
             }
             target_code[addr++ - target_startaddr] = b;
@@ -313,7 +306,7 @@ void read_image (const image_t *ip) {
 #endif
             totlen++;
             if (totlen >= sizeof(target_code)) {
-                error("Too much code");
+                Serial.println("ERROR: Too much code");
                 break;
             }
         }
@@ -321,18 +314,18 @@ void read_image (const image_t *ip) {
         b = (b<<4) + hexton(pgm_read_byte(hextext++));
         cksum += b;
         if (cksum != 0) {
-            error("Bad checksum: ");
+            Serial.println("ERROR: Bad checksum: ");
             Serial.print(cksum, HEX);
         }
         if (pgm_read_byte(hextext++) != '\n') {
-            error("No end of line");
+            Serial.println("ERROR: No end of line");
             break;
         }
 #if VERBOSE
         Serial.println();
 #endif
     }
-    fp("  Total bytes read: ");
+    Serial.print("  Total bytes read: ");
     Serial.println(totlen);
 }
 
@@ -346,14 +339,14 @@ void read_image (const image_t *ip) {
 
 boolean target_findimage () {
     const image_t *ip;
-    fp("Searching for image...\n");
+    Serial.print("Searching for image...\n");
     /*
      * Search through our table of chip aliases first
      */
     for (uint8_t i=0; i < sizeof(aliases)/sizeof(aliases[0]); i++) {
         const alias_t *a = &aliases[i];
         if (a->real_chipsig == target_type) {
-            fp("  Compatible bootloader for ");
+            Serial.print("  Compatible bootloader for ");
             Serial.println(a->alias_chipname);
             target_type = a->alias_chipsig;  /* Overwrite chip signature */
             break;
@@ -365,16 +358,16 @@ boolean target_findimage () {
     for (uint8_t i=0; i < sizeof(images)/sizeof(images[0]); i++) {
         target_flashptr = ip = images[i];
         if (ip && (pgm_read_word(&ip->image_chipsig) == target_type)) {
-            fp("  Found \"");
+            Serial.print("  Found \"");
             flashprint(&ip->image_name[0]);
-            fp("\" for ");
+            Serial.print("\" for ");
             flashprint(&ip->image_chipname[0]);
-            fp("\n");
+            Serial.print("\n");
             read_image(ip);
             return true;
         }
     }
-    fp(" Not Found\n");
+    Serial.print(" Not Found\n");
     return(false);
 }
 
@@ -387,9 +380,9 @@ boolean target_findimage () {
 void target_setfuse(uint8_t f, uint8_t fuse_byte) {
 
     if (f) {
-        fp("\n  Lock: ");
+        Serial.print("\n  Lock: ");
         Serial.print(f, HEX);
-        fp(" ");
+        Serial.print(" ");
         Serial.print(spi_transaction(0xAC, fuse_byte, 0x00, f), HEX);
     }
 
@@ -398,14 +391,14 @@ void target_setfuse(uint8_t f, uint8_t fuse_byte) {
 
 boolean target_progfuses () {
     uint8_t f;
-    fp("\nSetting fuses for programming");
-    fp("\n  Lock: ");
+    Serial.print("\nSetting fuses for programming");
+    Serial.print("\n  Lock: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_PROT]), 0xE0);
-    fp("  Low: ");
+    Serial.print("  Low: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_LOW]), 0xA0);
-    fp("  High: ");
+    Serial.print("  High: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_HIGH]), 0xA8);
-    fp("  Ext: ");
+    Serial.print("  Ext: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_EXT]), 0xA4);
     Serial.println();
     return true; 			/* */
@@ -419,18 +412,18 @@ boolean target_progfuses () {
 boolean target_program () {
     int l; 				/* actual length */
 
-    fp("\nProgramming bootloader: ");
+    Serial.print("\nProgramming bootloader: ");
     here = target_startaddr>>1; 		/* word address */
     buff = target_code;
     l = 512;
     Serial.print(l, DEC);
-    fp(" bytes at 0x");
+    Serial.print(" bytes at 0x");
     Serial.println(here, HEX);
 
     spi_transaction(0xAC, 0x80, 0, 0); 	/* chip erase */
     delay(1000);
     if (write_flash(l) != STK_OK) {
-        error("\nFlash Write Failed");
+        Serial.println("\nFlash Write Failed");
         return false;
     }
     return true; 			/*  */
@@ -442,14 +435,14 @@ boolean target_program () {
  * based programming
  */
 boolean target_normfuses () {
-    fp("\nRestoring normal fuses");
-    fp("\n  Lock: ");
+    Serial.print("\nRestoring normal fuses");
+    Serial.print("\n  Lock: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_PROT]), 0xE0);
-    fp("  Low: ");
+    Serial.print("  Low: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_LOW]), 0xA0);
-    fp("  High: ");
+    Serial.print("  High: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_HIGH]), 0xA8);
-    fp("  Ext: ");
+    Serial.print("  Ext: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_EXT]), 0xA4);
     
     Serial.println();
@@ -464,7 +457,7 @@ boolean target_normfuses () {
 boolean target_poweron () {
     uint16_t result;
 
-    fp("Target power on! ...");
+    Serial.print("Target power on! ...");
     digitalWrite(POWER, LOW);
     pinMode(POWER, OUTPUT);
     digitalWrite(POWER, HIGH);
@@ -477,20 +470,20 @@ boolean target_poweron () {
     pinMode(RESET, INPUT);
     delay(1);
     if (digitalRead(RESET) != HIGH) {
-        fp("No RESET pullup detected! - no target?");
+        Serial.print("No RESET pullup detected! - no target?");
         return false;
     }
     pinMode(RESET, OUTPUT);
 
     delay(200);
-    fp("\nStarting Program Mode");
+    Serial.print("\nStarting Program Mode");
     result = start_pmode();
     if ((result & 0xFF00) != 0x5300) {
-        fp(" - Failed, result = 0x");
+        Serial.print(" - Failed, result = 0x");
         Serial.print(result, HEX);
         return false;
     }
-    fp(" [OK]\n");
+    Serial.print(" [OK]\n");
     return true;
 }
 
@@ -499,19 +492,19 @@ boolean target_poweroff () {
     digitalWrite(POWER, LOW);
     delay(200);
     pinMode(POWER, INPUT);
-    fp("\nTarget power OFF!\n");
+    Serial.print("\nTarget power OFF!\n");
     return true;
 }
 
 void flash (uint8_t hilo, int addr, uint8_t data) {
 #if VERBOSE
     Serial.print(data, HEX);
-    fp(":");
+    Serial.print(":");
     Serial.print(spi_transaction(0x40+8*hilo,
                                  addr>>8 & 0xFF,
                                  addr & 0xFF,
                                  data), HEX);
-    fp(" ");
+    Serial.print(" ");
 #else
     (void) spi_transaction(0x40+8*hilo,
                            addr>>8 & 0xFF,
@@ -521,9 +514,9 @@ void flash (uint8_t hilo, int addr, uint8_t data) {
 }
 
 void commit (int addr) {
-    fp("  Commit Page: ");
+    Serial.print("  Commit Page: ");
     Serial.print(addr, HEX);
-    fp(":");
+    Serial.print(":");
     Serial.println(spi_transaction(0x4C, (addr >> 8) & 0xFF, addr & 0xFF, 0), HEX);
     delay(100);
 }
