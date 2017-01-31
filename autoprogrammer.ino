@@ -520,7 +520,6 @@ void commit (int addr) {
     delay(100);
 }
 
-//#define _current_page(x) (here & 0xFFFFE0)
 int current_page (int addr) {
     if (target_pagesize == 32) return here & 0xFFFFFFF0;
     if (target_pagesize == 64) return here & 0xFFFFFFE0;
@@ -530,7 +529,6 @@ int current_page (int addr) {
 
 uint8_t write_flash (int length) {
     if (target_pagesize < 1) return STK_FAILED;
-    //if (target_pagesize != 64) return STK_FAILED;
     int page = current_page(here);
     int x = 0;
     while (x < length) {
