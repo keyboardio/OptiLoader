@@ -107,17 +107,6 @@ void loop (void) {
  */
 
 /*
- * flashprint
- * print a text string direct from flash memory to Serial
- */
-void flashprint (const char p[]) {
-    uint8_t c;
-    while (0 != (c = pgm_read_byte(p++))) {
-        Serial.write(c);
-    }
-}
-
-/*
  * hexton
  * Turn a Hex digit (0..9, A..F) into the equivalent binary value (0-16)
  */
@@ -362,9 +351,9 @@ boolean target_findimage () {
         target_flashptr = ip = images[i];
         if (ip && (pgm_read_word(&ip->image_chipsig) == target_type)) {
             Serial.print("  Found \"");
-            flashprint(&ip->image_name[0]);
+            Serial.print(&ip->image_name[0]);
             Serial.print("\" for ");
-            flashprint(&ip->image_chipname[0]);
+            Serial.print(&ip->image_chipname[0]);
             Serial.print("\n");
             read_image(ip);
             return true;
