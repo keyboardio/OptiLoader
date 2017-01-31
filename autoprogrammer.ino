@@ -494,10 +494,16 @@ void commit (int addr) {
 }
 
 int current_page (int addr) {
-    if (target_pagesize == 32) return here & 0xFFFFFFF0;
-    if (target_pagesize == 64) return here & 0xFFFFFFE0;
-    if (target_pagesize == 128) return here & 0xFFFFFFC0;
-    return here;
+    switch (target_pagesize) {
+    case 32:
+        return here & 0xFFFFFFF0;
+    case 64:
+        return here & 0xFFFFFFE0;
+    case 128:
+        return here & 0xFFFFFFC0;
+    default:
+        return here;
+    }
 }
 
 uint8_t write_flash (int length) {
