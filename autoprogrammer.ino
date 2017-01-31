@@ -197,7 +197,7 @@ unsigned long spi_transaction (uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
     return 0xFFFFFF & ((((uint32_t)n)<<16)+(m<<8) + spi_send(d));
 }
 
-uint16_t start_pmode () {
+uint16_t start_programming_mode () {
     uint16_t result;
 
     pinMode(13, INPUT); // restore to default
@@ -217,7 +217,7 @@ uint16_t start_pmode () {
     return result;
 }
 
-void end_pmode (void) {
+void end_programming_mode (void) {
     SPCR = 0; 				/* reset SPI */
     digitalWrite(MISO, 0); 		/* Make sure pullups are off too */
     pinMode(MISO, INPUT);
@@ -488,7 +488,7 @@ boolean target_poweron () {
 
     delay(200);
     Serial.print("\nStarting Program Mode");
-    result = start_pmode();
+    result = start_programming_mode();
     if ((result & 0xFF00) != 0x5300) {
         Serial.print(" - Failed, result = 0x");
         Serial.print(result, HEX);
@@ -499,7 +499,7 @@ boolean target_poweron () {
 }
 
 boolean target_poweroff () {
-    end_pmode();
+    end_programming_mode();
     digitalWrite(POWER, LOW);
     delay(200);
     pinMode(POWER, INPUT);
