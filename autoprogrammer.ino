@@ -192,7 +192,6 @@ unsigned long spi_transaction (uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
     uint8_t n, m;
     spi_send(a);
     n=spi_send(b);
-    //if (n != a) error = -1;
     m=spi_send(c);
     return 0xFFFFFF & ((((uint32_t)n)<<16)+(m<<8) + spi_send(d));
 }
@@ -401,7 +400,6 @@ void target_setfuse(uint8_t f, uint8_t fuse_byte) {
 
 
 boolean target_progfuses () {
-    uint8_t f;
     Serial.print("\nSetting fuses for programming");
     Serial.print("\n  Lock: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_PROT]), 0xE0);
@@ -508,20 +506,10 @@ boolean target_poweroff () {
 }
 
 void flash (uint8_t hilo, int addr, uint8_t data) {
-#if VERBOSE
-    Serial.print(data, HEX);
-    Serial.print(":");
-    Serial.print(spi_transaction(0x40+8*hilo,
-                                 addr>>8 & 0xFF,
-                                 addr & 0xFF,
-                                 data), HEX);
-    Serial.print(" ");
-#else
     (void) spi_transaction(0x40+8*hilo,
                            addr>>8 & 0xFF,
                            addr & 0xFF,
                            data);
-#endif
 }
 
 void commit (int addr) {
