@@ -50,7 +50,7 @@ char Arduino_preprocessor_hint;
 
 
 // Forward references
-void pulse(int pin, int times);
+void blink_led(int pin, int times);
 void read_image(const image_t *ip);
 
 // Global Variables
@@ -66,11 +66,17 @@ uint8_t *buff;
 
 const image_t *target_flashptr; 	       /* pointer to target info in flash */
 uint8_t target_code[512];	       /* The whole code */
-
+
+
+void startup_blink(void) {
+    pinMode(13, OUTPUT); 			/* Blink the pin13 LED a few times */
+    blink_led(13,20);
+
+}
+
 void setup (void) {
     Serial.begin(19200); 			/* Initialize serial for status msgs */
-    pinMode(13, OUTPUT); 			/* Blink the pin13 LED a few times */
-    pulse(13,20);
+    startup_blink();
 }
 
 void loop (void) {
@@ -130,16 +136,16 @@ uint8_t hexton (uint8_t h) {
 }
 
 /*
- * pulse
+ * blink_led
  * turn a pin on and off a few times; indicates life via LED
  */
-#define PTIME 30
-void pulse (int pin, int times) {
+#define BLINK_TIME 30
+void blink_led (int pin, int times) {
     do {
         digitalWrite(pin, HIGH);
-        delay(PTIME);
+        delay(BLINK_TIME);
         digitalWrite(pin, LOW);
-        delay(PTIME);
+        delay(BLINK_TIME);
     } while (times--);
 }
 
