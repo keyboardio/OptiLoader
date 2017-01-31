@@ -389,22 +389,36 @@ boolean target_progfuses () {
  */
 
 boolean target_program () {
-    int l; 				/* actual length */
+    int length = 512; 				/* actual length */
 
     Serial.print("\nProgramming device: ");
     here = target_startaddr>>1; 		/* word address */
     buff = target_code;
-    l = 512;
-    Serial.print(l, DEC);
-    Serial.print(" bytes at 0x");
-    Serial.println(here, HEX);
 
     spi_transaction(0xAC, 0x80, 0, 0); 	/* chip erase */
     delay(1000);
-    if (write_flash(l) != STK_OK) {
+
+    if (target_pagesize < 1)  {
         Serial.println("\nFlash Write Failed");
         return false;
+
     }
+
+    int page = current_page(here);
+    int x = 0;
+    while (x < length) {
+        if (page != current_page(here)) {
+            commit(page);
+            page = current_page(here);
+        }
+        flash(LOW, here, buff[x]);
+        flash(HIGH, here, buff[x+1]);
+        x+=2;
+        here++;
+    }
+
+    commit(page);
+
     return true; 			/*  */
 }
 
@@ -503,25 +517,6 @@ int current_page (int addr) {
     }
 }
 
-uint8_t write_flash (int length) {
-    if (target_pagesize < 1) return STK_FAILED;
-    int page = current_page(here);
-    int x = 0;
-    while (x < length) {
-        if (page != current_page(here)) {
-            commit(page);
-            page = current_page(here);
-        }
-        flash(LOW, here, buff[x]);
-        flash(HIGH, here, buff[x+1]);
-        x+=2;
-        here++;
-    }
-
-    commit(page);
-
-    return STK_OK;
-}
 
 uint16_t read_signature () {
     uint8_t sig_middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
