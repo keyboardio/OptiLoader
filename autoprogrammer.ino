@@ -133,7 +133,7 @@ void blink_led (int pin, int times) {
  */
 void spi_init (void) {
     uint8_t x;
-    SPCR = 0x53;  // SPIE | MSTR | SPR1 | SPR0
+    SPCR =  SPIE | MSTR | SPR1 | SPR0;
     x=SPSR;
     x=SPDR;
 }
