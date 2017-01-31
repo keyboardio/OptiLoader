@@ -392,7 +392,7 @@ boolean target_program () {
     int length = 512; 				/* actual length */
 
     Serial.print("\nProgramming device: ");
-    here = target_startaddr>>1; 		/* word address */
+    target_addr = target_startaddr>>1; 		/* word address */
     buff = target_code;
 
     spi_transaction(0xAC, 0x80, 0, 0); 	/* chip erase */
@@ -404,17 +404,16 @@ boolean target_program () {
 
     }
 
-    int page = current_page(here);
-    int x = 0;
-    while (x < length) {
-        if (page != current_page(here)) {
+    int page = current_page(target_addr);
+    int byte_to_send = 0;
+    while (byte_to_send < length) {
+        if (page != current_page(target_addr)) {
             commit(page);
-            page = current_page(here);
+            page = current_page(target_addr);
         }
-        flash(LOW, here, buff[x]);
-        flash(HIGH, here, buff[x+1]);
-        x+=2;
-        here++;
+        flash(LOW, target_addr, buff[byte_to_send++]);
+        flash(HIGH, target_addr, buff[byte_to_send++]);
+        target_addr++;
     }
 
     commit(page);
