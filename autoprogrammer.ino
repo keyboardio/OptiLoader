@@ -99,21 +99,6 @@ void loop (void) {
  */
 
 /*
- * hexton
- * Turn a Hex digit (0..9, A..F) into the equivalent binary value (0-16)
- */
-uint8_t hexton (uint8_t h) {
-    if (h >= '0' && h <= '9')
-        return(h - '0');
-    if (h >= 'A' && h <= 'F')
-        return((h - 'A') + 10);
-    Serial.print("ERROR: Bad hex digit: ");
-    Serial.print(h);
-    Serial.println("");
-    return(0);
-}
-
-/*
  * blink_led
  * turn a pin on and off a few times; indicates life via LED
  */
@@ -411,8 +396,6 @@ boolean target_program () {
             commit(page);
             page = current_page(target_addr);
         }
-
-
 
         spi_transaction(0x40, target_addr>>8 & 0xFF, target_addr & 0xFF, buff[byte_to_send++]);
         spi_transaction(0x48, target_addr>>8 & 0xFF, target_addr & 0xFF, buff[byte_to_send++]);
