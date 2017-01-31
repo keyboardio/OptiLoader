@@ -266,35 +266,23 @@ uint8_t attempt_flash(void) {
  * values during programming, and for after we're done.
  */
 
-uint8_t read_hexdata(char *hextext) {
-    uint8_t data;
-    data = hexton(pgm_read_byte(hextext++));
-    data = (data <<4) + hexton(pgm_read_byte(hextext++));
-
-    return data;
-}
-
 
 void read_image (const image_t *ip) {
     uint16_t len, totlen=0, addr;
-    const char *hextext = &ip->image_hexcode[0];
+    uint8_t hextext = &ip->image_hexcode_ptr;
     target_startaddr = 0;
     target_pagesize = pgm_read_byte(&ip->image_pagesize);
     uint8_t b, cksum = 0;
 
     while (1) {
-        if (pgm_read_byte(hextext++) != ':') {
-            Serial.println("ERROR: no colon");
-            break;
-        }
-        len = read_hexdata(hextext);
+        len = pgm_read_byte(hextext++);
         cksum = len;
 
-        b = read_hexdata(hextext); /* record type */
+        b = pgm_read_byte(hextext++); /* record type */
         cksum += b;
         addr = b;
 
-        b = read_hexdata(hextext); /* record type */
+        b = pgm_read_byte(hextext++); /* record type */
         cksum += b;
         addr = (addr << 8) + b;
 
@@ -307,38 +295,27 @@ void read_image (const image_t *ip) {
         }
 
         // TODO: Why are are we throwing away this?
-        cksum += read_hexdata(hextext); /* record type */
+        cksum += pgm_read_byte(hextext++); /* record type */
 
         for (uint8_t i=0; i < len; i++) {
-            b = read_hexdata(hextext); /* record type */
+            b = pgm_read_byte(hextext++); /* record type */
             if (addr - target_startaddr >= sizeof(target_code)) {
                 Serial.println("ERROR: Code extends beyond allowed range");
                 break;
             }
             target_code[addr++ - target_startaddr] = b;
             cksum += b;
-#if VERBOSE
-            Serial.print(b, HEX);
-            Serial.write(' ');
-#endif
             totlen++;
             if (totlen >= sizeof(target_code)) {
                 Serial.println("ERROR: Too much code");
                 break;
             }
         }
-        cksum += read_hexdata(hextext); /* checksum */
+        cksum += pgm_read_byte(hextext++); /* checksum */
         if (cksum != 0) {
             Serial.println("ERROR: Bad checksum: ");
             Serial.print(cksum, HEX);
         }
-        if (pgm_read_byte(hextext++) != '\n') {
-            Serial.println("ERROR: No end of line");
-            break;
-        }
-#if VERBOSE
-        Serial.println();
-#endif
     }
     Serial.print("  Total bytes read: ");
     Serial.println(totlen);

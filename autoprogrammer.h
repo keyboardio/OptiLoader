@@ -7,7 +7,7 @@ typedef struct image {
     uint8_t image_progfuses[5];	       /* fuses to set during programming */
     uint8_t image_normfuses[5];	       /* fuses to set after programming */
     uint8_t image_pagesize;	       /* page size for flash programming */
-    char image_hexcode[32700];	       /* intel hex format image (text) */
+    PGM_P image_hexcode_ptr;	       /* intel hex format image (text) */
 } image_t;
 
 typedef struct alias {

@@ -35,7 +35,9 @@ const alias_t aliases[] = {
 
  */
 
-
+const char atmega_image[] PROGMEM = {
+#include "generated/atmega32u4.h"
+};
 const image_t PROGMEM image_32u4 = {
     { "firmware_atmega32u4.hex"    } ,
     { "atmega32u4"    } ,
@@ -43,9 +45,12 @@ const image_t PROGMEM image_32u4 = {
     { 0x3F,0xFF,0xD8,0xCB,0    } ,
     { 0x2F,0,0,0,0    } ,
     128,
-    {
-#include "generated/atmega32u4.h"
-    }
+    atmega_image
+};
+
+
+const char attiny_image[] PROGMEM = {
+#include "generated/attiny88.h"
 };
 
 
@@ -56,9 +61,7 @@ const image_t PROGMEM image_tiny88 = {
     { 0x3F, 0xEE, 0xDD, 0xFE, 0    } ,
     { 0x2F,0,0,0,0    } ,
     64,
-    {
-#include "generated/attiny88.h"
-    }
+    attiny_image
 };
 
 
