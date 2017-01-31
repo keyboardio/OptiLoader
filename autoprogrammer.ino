@@ -411,8 +411,8 @@ boolean target_program () {
             commit(page);
             page = current_page(target_addr);
         }
-        flash(LOW, target_addr, buff[byte_to_send++]);
-        flash(HIGH, target_addr, buff[byte_to_send++]);
+        flash(target_addr, LOW, buff[byte_to_send++]);
+        flash(target_addr, HIGH, buff[byte_to_send++]);
         target_addr++;
     }
 
@@ -488,11 +488,8 @@ boolean target_poweroff () {
     return true;
 }
 
-void flash (uint8_t hilo, int addr, uint8_t data) {
-    (void) spi_transaction(0x40+8*hilo,
-                           addr>>8 & 0xFF,
-                           addr & 0xFF,
-                           data);
+void flash (int addr, uint8_t hilo, uint8_t data) {
+    (void) spi_transaction(0x40+8*hilo, addr>>8 & 0xFF, addr & 0xFF, data);
 }
 
 void commit (int addr) {
