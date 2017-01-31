@@ -411,8 +411,11 @@ boolean target_program () {
             commit(page);
             page = current_page(target_addr);
         }
-        flash(target_addr, LOW, buff[byte_to_send++]);
-        flash(target_addr, HIGH, buff[byte_to_send++]);
+
+
+
+        spi_transaction(0x40, target_addr>>8 & 0xFF, target_addr & 0xFF, buff[byte_to_send++]);
+        spi_transaction(0x48, target_addr>>8 & 0xFF, target_addr & 0xFF, buff[byte_to_send++]);
         target_addr++;
     }
 
@@ -486,10 +489,6 @@ boolean target_poweroff () {
     pinMode(POWER, INPUT);
     Serial.print("\nTarget power OFF!\n");
     return true;
-}
-
-void flash (int addr, uint8_t hilo, uint8_t data) {
-    (void) spi_transaction(0x40+8*hilo, addr>>8 & 0xFF, addr & 0xFF, data);
 }
 
 void commit (int addr) {
