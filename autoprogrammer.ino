@@ -77,7 +77,7 @@ void setup (void) {
 }
 
 void loop (void) {
-    Serial.print("\nOptiLoader Bootstrap programmer.\n2011 by Bill Westfield (WestfW)\n\n");
+    Serial.print("\nKeyboardio AVR Flasher\n\n");
     if (target_poweron()) {		/* Turn on target power */
         do {
             if (!target_identify()) 		/* Figure out what kind of CPU */
