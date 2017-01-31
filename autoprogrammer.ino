@@ -307,8 +307,6 @@ void read_image (const image_t *ip) {
             Serial.print(cksum, HEX);
         }
     }
-    Serial.print("  Total bytes read: ");
-    Serial.println(totlen);
 }
 
 /*
