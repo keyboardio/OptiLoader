@@ -98,7 +98,7 @@ void loop (void) {
     }
     target_poweroff(); 			/* turn power off */
 
-    Serial.print ("\nType 'G' or hit RESET for next chip\n")
+    Serial.print ("\nType 'G' or hit RESET for next chip\n");
     while (1) {
         if (Serial.read() == 'G')
             break;
@@ -450,7 +450,7 @@ boolean target_normfuses () {
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_HIGH]), 0xA8);
     Serial.print("  Ext: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_EXT]), 0xA4);
-    
+
     Serial.println();
     return true; 			/* */
 }
