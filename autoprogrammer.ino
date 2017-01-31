@@ -78,20 +78,12 @@ void setup (void) {
 
 void loop (void) {
     Serial.print("\nKeyboardio AVR Flasher\n\n");
-    if (target_poweron()) {		/* Turn on target power */
-        do {
-            if (!target_identify()) 		/* Figure out what kind of CPU */
-                break;
-            if (!target_findimage())		/* look for an image */
-                break;
-            if (!target_progfuses())		/* get fuses ready to program */
-                break;
-            if (!target_program()) 		/* Program the image */
-                break;
-            (void) target_normfuses(); 	/* reset fuses to normal mode */
-        } while (0);
+
+    uint8_t did_flash = attempt_flash();
+    if (did_flash) {
+        Serial.println("Success!");
     } else {
-        Serial.println();
+        Serial.println("Failed.");
     }
     target_poweroff(); 			/* turn power off */
 
@@ -238,6 +230,33 @@ void end_pmode (void) {
     pmode = 0;
 }
 
+
+
+uint8_t attempt_flash(void) {
+    if (!target_poweron() ) {
+        return 0;   /* Turn on target power */
+    }
+    if (!target_identify() ) {
+        return 0;   /* Figure out what kind of CPU */
+    }
+    if (!target_findimage() ) {
+        return 0;   /* look for an image */
+    }
+    if (!target_progfuses() ) {
+        return 0;   /* get fuses ready to program */
+    }
+    if (!target_program() ) {
+        return 0;   /* Program the image */
+    }
+    if (!target_normfuses() ) {
+        return 0;   /* reset fuses to normal mode */
+    }
+
+    return 1;
+}
+
+
+
 /*
  * read_image
  *

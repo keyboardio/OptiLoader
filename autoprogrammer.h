@@ -28,3 +28,13 @@ extern const image_t PROGMEM image_tiny88, image_32u4;
 // Forward references
 void blink_led(int pin, int times);
 void read_image(const image_t *ip);
+uint8_t attempt_flash(void);
+boolean target_identify (void);
+boolean target_findimage (void);
+boolean target_progfuses (void);
+boolean target_program (void);
+boolean target_normfuses (void);
+boolean target_poweron (void);
+boolean target_poweroff (void);
+
+
