@@ -49,9 +49,6 @@ char Arduino_preprocessor_hint;
 #define STK_FAILED 0x11
 
 
-// Forward references
-void blink_led(int pin, int times);
-void read_image(const image_t *ip);
 
 // Global Variables
 

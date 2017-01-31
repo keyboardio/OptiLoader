@@ -23,3 +23,8 @@ typedef struct alias {
 
 // Forward decl
 extern const image_t PROGMEM image_tiny88, image_32u4;
+
+
+// Forward references
+void blink_led(int pin, int times);
+void read_image(const image_t *ip);
