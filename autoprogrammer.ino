@@ -293,7 +293,6 @@ void read_image (const image_t *ip) {
             break;
         }
 
-        // TODO: Why are are we throwing away this?
         cksum += pgm_read_byte(hextext++); /* record type */
 
         for (uint8_t i=0; i < len; i++) {
@@ -394,7 +393,7 @@ boolean target_progfuses () {
 boolean target_program () {
     int l; 				/* actual length */
 
-    Serial.print("\nProgramming bootloader: ");
+    Serial.print("\nProgramming device: ");
     here = target_startaddr>>1; 		/* word address */
     buff = target_code;
     l = 512;
