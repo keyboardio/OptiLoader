@@ -298,17 +298,9 @@ void read_image (const image_t *ip) {
 
         for (uint8_t i=0; i < len; i++) {
             b = pgm_read_byte(hextext++); /* data */
-            if (addr - target_startaddr >= sizeof(target_code)) {
-                Serial.println("ERROR: Code extends beyond allowed range");
-                break;
-            }
             target_code[addr++ - target_startaddr] = b;
             cksum += b;
             totlen++;
-            if (totlen >= sizeof(target_code)) {
-                Serial.println("ERROR: Too much code");
-                break;
-            }
         }
         cksum += pgm_read_byte(hextext++); /* checksum */
         if (cksum != 0) {
