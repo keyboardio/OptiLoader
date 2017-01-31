@@ -275,7 +275,7 @@ void read_image (const image_t *ip) {
     uint8_t b, cksum = 0;
 
     while (1) {
-        length = pgm_read_byte(hextext++);
+        len = pgm_read_byte(hextext++);
         cksum = len;
 
         addr = pgm_read_byte(hextext++); /* address - first byte */
