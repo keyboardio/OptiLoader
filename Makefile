@@ -1,3 +1,4 @@
+all: astyle process-images build 
 process-images:
 	-mkdir generated
 	cp images/atmega32u4_factory.hex generated/atmega32u4.h
