@@ -275,14 +275,13 @@ void read_image (const image_t *ip) {
     uint8_t b, cksum = 0;
 
     while (1) {
-        len = pgm_read_byte(hextext++);
+        length = pgm_read_byte(hextext++);
         cksum = len;
 
-        b = pgm_read_byte(hextext++); /* record type */
-        cksum += b;
-        addr = b;
+        addr = pgm_read_byte(hextext++); /* address - first byte */
+        cksum += addr;
 
-        b = pgm_read_byte(hextext++); /* record type */
+        b = pgm_read_byte(hextext++); /* address - second byte */
         cksum += b;
         addr = (addr << 8) + b;
 
@@ -298,7 +297,7 @@ void read_image (const image_t *ip) {
         cksum += pgm_read_byte(hextext++); /* record type */
 
         for (uint8_t i=0; i < len; i++) {
-            b = pgm_read_byte(hextext++); /* record type */
+            b = pgm_read_byte(hextext++); /* data */
             if (addr - target_startaddr >= sizeof(target_code)) {
                 Serial.println("ERROR: Code extends beyond allowed range");
                 break;
