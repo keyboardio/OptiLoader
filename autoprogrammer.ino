@@ -54,7 +54,7 @@ char Arduino_preprocessor_hint;
 
 int pmode=0;
 // address for reading and writing, set by 'U' command
-int here;
+int target_addr;
 
 uint16_t target_type = 0;		/* type of target_cpu */
 uint16_t target_startaddr;
@@ -506,13 +506,13 @@ void commit (int addr) {
 int current_page (int addr) {
     switch (target_pagesize) {
     case 32:
-        return here & 0xFFFFFFF0;
+        return target_addr & 0xFFFFFFF0;
     case 64:
-        return here & 0xFFFFFFE0;
+        return target_addr & 0xFFFFFFE0;
     case 128:
-        return here & 0xFFFFFFC0;
+        return target_addr & 0xFFFFFFC0;
     default:
-        return here;
+        return target_addr;
     }
 }
 
