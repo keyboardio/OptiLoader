@@ -52,7 +52,7 @@ char Arduino_preprocessor_hint;
 
 // Global Variables
 
-int pmode=0;
+int in_programming_mode=0;
 // address for reading and writing, set by 'U' command
 int target_addr;
 
@@ -196,7 +196,7 @@ uint16_t start_programming_mode () {
     pinMode(MISO, INPUT);
     pinMode(MOSI, OUTPUT);
     result = spi_transaction(0xAC, 0x53, 0x00, 0x00);
-    pmode = 1;
+    in_programming_mode = 1;
     return result;
 }
 
@@ -210,7 +210,7 @@ void end_programming_mode (void) {
     pinMode(SCK, INPUT);
     digitalWrite(RESET, 0);
     pinMode(RESET, INPUT);
-    pmode = 0;
+    in_programming_mode = 0;
 }
 
 
