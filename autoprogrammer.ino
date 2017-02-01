@@ -128,8 +128,7 @@ void spi_init (void) {
  * wait for SPI transfer to complete
  */
 void spi_wait (void) {
-    do {
-    } while (!(SPSR & (1 << SPIF)));
+    do { } while (!(SPSR & (1 << SPIF)));
 }
 
 /*
