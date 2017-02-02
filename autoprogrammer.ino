@@ -302,16 +302,23 @@ boolean resolve_chip_alias() {
     return false;
 }
 
+/*
+   target_findimage
+
+   given target_type loaded with the relevant part of the device signature,
+   search the hex images that we have programmed in flash, looking for one
+   that matches.
+*/
+
 boolean target_findimage () {
     /* Search through our table of self-contained images.  */
     for (uint8_t i = 0; i < sizeof(images) / sizeof(images[0]); i++) {
-        target_flashptr = images[i];
-        if (target_flashptr && (pgm_read_word(&target_flashptr->image_chipsig) == target_type)) {
+        if (images[i] && (pgm_read_word(&images[i]->image_chipsig) == target_type)) {
+            target_flashptr = images[i];
             target_pagesize = pgm_read_byte(&target_flashptr->image_pagesize);
             return true;
         }
     }
-    target_flashptr = 0;
     return (false);
 }
 
