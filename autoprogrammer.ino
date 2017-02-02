@@ -320,8 +320,6 @@ boolean target_findimage () {
         target_flashptr = ip = images[i];
         if (ip && (pgm_read_word(&ip->image_chipsig) == target_type)) {
             Serial.print("  Found \"");
-            Serial.print(&ip->image_name[0]);
-            Serial.print("\" for ");
             Serial.print(&ip->image_chipname[0]);
             Serial.print("\n");
             read_image(ip);

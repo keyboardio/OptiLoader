@@ -39,7 +39,6 @@ const char atmega_image[] PROGMEM = {
 #include "generated/atmega32u4.h"
 };
 const image_t PROGMEM image_32u4 = {
-    { "firmware_atmega32u4.hex"    } ,
     { "atmega32u4"    } ,
     0x9587,				/* Signature bytes for 32u4 */
     { 0x3F,0xFF,0xD8,0xCB,0    } ,
@@ -55,7 +54,6 @@ const char attiny_image[] PROGMEM = {
 
 
 const image_t PROGMEM image_tiny88 = {
-    { "firmware_attiny88.hex"    } ,
     { "attiny88"    } ,
     0x9311,				/* Signature bytes for Tiny88 */
     { 0x3F, 0xEE, 0xDD, 0xFE, 0    } ,

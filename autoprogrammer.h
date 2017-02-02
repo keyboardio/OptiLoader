@@ -1,7 +1,6 @@
 #include <stdint.h>
 
 typedef struct image {
-    char image_name[30];	       /* Ie "optiboot_diecimila.hex" */
     char image_chipname[12];	       /* ie "atmega168" */
     uint16_t image_chipsig;	       /* Low two bytes of signature */
     uint8_t image_progfuses[5];	       /* fuses to set during programming */
