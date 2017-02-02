@@ -278,20 +278,8 @@ bool read_image () {
     return true;
 }
 
-/*
-   target_findimage
-
-   given target_type loaded with the relevant part of the device signature,
-   search the hex images that we have programmed in flash, looking for one
-   that matches.
-*/
-
-
-
+/* Search through our table of chip aliases first */
 boolean resolve_chip_alias() {
-    /*
-       Search through our table of chip aliases first
-    */
     for (uint8_t i = 0; i < sizeof(aliases) / sizeof(aliases[0]); i++) {
         const alias_t *a = &aliases[i];
         if (a->real_chipsig == target_type) {
