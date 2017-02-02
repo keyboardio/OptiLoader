@@ -81,13 +81,16 @@ void loop (void) {
 
     uint8_t did_flash = attempt_flash();
     if (did_flash) {
-        Serial.println("Success!");
+        Serial.println("OK!");
     } else {
-        Serial.println("Failed.");
+        Serial.println("FAIL");
     }
-    target_poweroff(); 			/* turn power off */
 
-    Serial.print ("\nType 'G' or hit RESET for next chip\n");
+    
+    target_poweroff(); 			/* turn power off */
+    Serial.print("\nTarget power OFF!\n");
+
+    Serial.print ("\nType 'G' or RESET for next chip\n");
     while (1) {
         if (Serial.read() == 'G')
             break;
@@ -320,11 +323,11 @@ boolean target_progfuses () {
     Serial.print("\nSetting fuses for programming");
     Serial.print("\n  Lock: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_PROT]), 0xE0);
-    Serial.print("  Low: ");
+    Serial.print(" L:");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_LOW]), 0xA0);
-    Serial.print("  High: ");
+    Serial.print("H:");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_HIGH]), 0xA8);
-    Serial.print("  Ext: ");
+    Serial.print(" E:");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_EXT]), 0xA4);
     Serial.println();
     return true; 			/* */
@@ -378,11 +381,11 @@ boolean target_normfuses () {
     Serial.print("\nRestoring normal fuses");
     Serial.print("\n  Lock: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_PROT]), 0xE0);
-    Serial.print("  Low: ");
+    Serial.print(" L:");
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_LOW]), 0xA0);
-    Serial.print("  High: ");
+    Serial.print("  H:");
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_HIGH]), 0xA8);
-    Serial.print("  Ext: ");
+    Serial.print("  E:");
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_EXT]), 0xA4);
 
     Serial.println();
