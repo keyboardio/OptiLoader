@@ -348,28 +348,6 @@ void target_erase() {
    Actually program the image into the target chip
 */
 
-boolean target_program () {
-    int length = 512; 				/* actual length */
-    int byte_to_send = 0;
-
-    target_addr = target_startaddr >> 1; 		/* word address */
-    int page = current_page(target_addr);
-
-    while (byte_to_send < length) {
-        if (page != current_page(target_addr)) {
-            commit(page);
-            page = current_page(target_addr);
-        }
-        spi_transaction(0x40, target_addr >> 8 & 0xFF, target_addr & 0xFF, target_code[byte_to_send++]);
-        spi_transaction(0x48, target_addr >> 8 & 0xFF, target_addr & 0xFF, target_code[byte_to_send++]);
-        target_addr++;
-    }
-
-    commit(page);
-    return true;
-}
-
-
 
 boolean target_program_from_storage () {
     target_startaddr = 0;
