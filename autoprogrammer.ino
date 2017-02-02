@@ -187,21 +187,49 @@ unsigned long spi_transaction (uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
 
 
 uint8_t attempt_flash(void) {
+
+      Serial.print("Target power on! ...");
+
     if (!target_poweron() ) {
+        Serial.print("No RESET pullup detected! - no target?");
+
         return 0;   /* Turn on target power */
     }
+
+    Serial.print("\nStarting Program Mode");
+
+    if (!target_programming_mode() ) {
+      Serial.println("FAIL: Enable programming mode.");
+      return 0;
+    }
+    
     if (!target_identify() ) {
         return 0;   /* Figure out what kind of CPU */
     }
+
+    Serial.print("Searching for image...\n");
     if (!target_findimage() ) {
+          Serial.print(" Not Found\n");
+
         return 0;   /* look for an image */
     }
+
+
+        Serial.print("\nSetting fuses for programming");
+
     if (!target_progfuses() ) {
         return 0;   /* get fuses ready to program */
     }
+    
+    Serial.print("\nProgramming device: ");
+
     if (!target_program() ) {
+        Serial.println("\nFlash Write Failed");
         return 0;   /* Program the image */
     }
+
+    Serial.print("\nRestoring normal fuses");
+
     if (!target_normfuses() ) {
         return 0;   /* reset fuses to normal mode */
     }
@@ -271,7 +299,6 @@ void read_image (const image_t *ip) {
 
 boolean target_findimage () {
     const image_t *ip;
-    Serial.print("Searching for image...\n");
     /*
      * Search through our table of chip aliases first
      */
@@ -297,7 +324,6 @@ boolean target_findimage () {
             return true;
         }
     }
-    Serial.print(" Not Found\n");
     return(false);
 }
 
@@ -320,8 +346,7 @@ void target_setfuse(uint8_t f, uint8_t fuse_byte) {
 
 
 boolean target_progfuses () {
-    Serial.print("\nSetting fuses for programming");
-    Serial.print("\n  Lock: ");
+    Serial.print("\nLCK: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_PROT]), 0xE0);
     Serial.print(" L:");
     target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_LOW]), 0xA0);
@@ -341,7 +366,6 @@ boolean target_progfuses () {
 boolean target_program () {
     int length = 512; 				/* actual length */
 
-    Serial.print("\nProgramming device: ");
     target_addr = target_startaddr>>1; 		/* word address */
     buff = target_code;
 
@@ -349,7 +373,6 @@ boolean target_program () {
     delay(1000);
 
     if (target_pagesize < 1)  {
-        Serial.println("\nFlash Write Failed");
         return false;
 
     }
@@ -378,7 +401,6 @@ boolean target_program () {
  * based programming
  */
 boolean target_normfuses () {
-    Serial.print("\nRestoring normal fuses");
     Serial.print("\n  Lock: ");
     target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_PROT]), 0xE0);
     Serial.print(" L:");
@@ -400,7 +422,6 @@ boolean target_normfuses () {
 boolean target_poweron () {
     uint16_t result;
 
-    Serial.print("Target power on! ...");
     digitalWrite(POWER, LOW);
     pinMode(POWER, OUTPUT);
     digitalWrite(POWER, HIGH);
@@ -413,7 +434,6 @@ boolean target_poweron () {
     pinMode(RESET, INPUT);
     delay(1);
     if (digitalRead(RESET) != HIGH) {
-        Serial.print("No RESET pullup detected! - no target?");
         return false;
     }
     pinMode(RESET, OUTPUT);
@@ -443,11 +463,9 @@ boolean target_programming_mode() {
     in_programming_mode = 1;
 
     if ((result & 0xFF00) != 0x5300) {
-        Serial.print(" - Failed, result = 0x");
-        Serial.print(result, HEX);
-        return false;
+     
+       return false;
     }
-    Serial.print(" [OK]\n");
     return true;
 }
 
@@ -466,7 +484,6 @@ boolean target_poweroff () {
     digitalWrite(POWER, LOW);
     delay(200);
     pinMode(POWER, INPUT);
-    Serial.print("\nTarget power OFF!\n");
     return true;
 }
 
