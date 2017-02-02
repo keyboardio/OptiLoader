@@ -66,35 +66,35 @@ uint8_t target_code[512];	       /* The whole code */
 
 
 void startup_blink(void) {
-  pinMode(13, OUTPUT); 			/* Blink the pin13 LED a few times */
-  blink_led(13, 20);
+    pinMode(13, OUTPUT); 			/* Blink the pin13 LED a few times */
+    blink_led(13, 20);
 
 }
 
 void setup (void) {
-  Serial.begin(19200); 			/* Initialize serial for status msgs */
-  startup_blink();
+    Serial.begin(19200); 			/* Initialize serial for status msgs */
+    startup_blink();
 }
 
 void loop (void) {
-  Serial.print("\nKeyboardio AVR Flasher\n\n");
+    Serial.print("\nKeyboardio AVR Flasher\n\n");
 
-  uint8_t did_flash = attempt_flash();
-  if (did_flash) {
-    Serial.println("OK!");
-  } else {
-    Serial.println("FAIL");
-  }
+    uint8_t did_flash = attempt_flash();
+    if (did_flash) {
+        Serial.println("OK!");
+    } else {
+        Serial.println("FAIL");
+    }
 
 
-  target_poweroff(); 			/* turn power off */
-  Serial.print("\nTarget power OFF!\n");
+    target_poweroff(); 			/* turn power off */
+    Serial.print("\nTarget power OFF!\n");
 
-  Serial.print ("\nType 'G' or RESET for next chip\n");
-  while (1) {
-    if (Serial.read() == 'G')
-      break;
-  }
+    Serial.print ("\nType 'G' or RESET for next chip\n");
+    while (1) {
+        if (Serial.read() == 'G')
+            break;
+    }
 }
 
 /*
@@ -107,12 +107,12 @@ void loop (void) {
 */
 #define BLINK_TIME 30
 void blink_led (int pin, int times) {
-  do {
-    digitalWrite(pin, HIGH);
-    delay(BLINK_TIME);
-    digitalWrite(pin, LOW);
-    delay(BLINK_TIME);
-  } while (times--);
+    do {
+        digitalWrite(pin, HIGH);
+        delay(BLINK_TIME);
+        digitalWrite(pin, LOW);
+        delay(BLINK_TIME);
+    } while (times--);
 }
 
 /*
@@ -120,10 +120,10 @@ void blink_led (int pin, int times) {
    initialize the AVR SPI peripheral
 */
 void spi_init (void) {
-  uint8_t x;
-  SPCR =  SPIE | MSTR | SPR1 | SPR0;
-  x = SPSR;
-  x = SPDR;
+    uint8_t x;
+    SPCR =  SPIE | MSTR | SPR1 | SPR0;
+    x = SPSR;
+    x = SPDR;
 }
 
 /*
@@ -131,7 +131,7 @@ void spi_init (void) {
    wait for SPI transfer to complete
 */
 void spi_wait (void) {
-  do { } while (!(SPSR & (1 << SPIF)));
+    do { } while (!(SPSR & (1 << SPIF)));
 }
 
 /*
@@ -139,11 +139,11 @@ void spi_wait (void) {
    send a byte via SPI, wait for the transfer.
 */
 uint8_t spi_send (uint8_t b) {
-  uint8_t reply;
-  SPDR = b;
-  spi_wait();
-  reply = SPDR;
-  return reply;
+    uint8_t reply;
+    SPDR = b;
+    spi_wait();
+    reply = SPDR;
+    return reply;
 }
 
 
@@ -158,29 +158,29 @@ uint8_t spi_send (uint8_t b) {
 */
 
 boolean target_identify () {
-  boolean result;
-  target_type = 0;
-  Serial.print("\nReading signature:");
-  target_type = read_signature();
-  if (target_type == 0 || target_type == 0xFFFF) {
-    Serial.print(" Bad value: ");
-    result = false;
-  } else {
-    result = true;
-  }
-  Serial.println(target_type, HEX);
-  if (target_type == 0) {
-    Serial.print("  (no target attached?)\n");
-  }
-  return result;
+    boolean result;
+    target_type = 0;
+    Serial.print("\nReading signature:");
+    target_type = read_signature();
+    if (target_type == 0 || target_type == 0xFFFF) {
+        Serial.print(" Bad value: ");
+        result = false;
+    } else {
+        result = true;
+    }
+    Serial.println(target_type, HEX);
+    if (target_type == 0) {
+        Serial.print("  (no target attached?)\n");
+    }
+    return result;
 }
 
 unsigned long spi_transaction (uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
-  uint8_t n, m;
-  spi_send(a);
-  n = spi_send(b);
-  m = spi_send(c);
-  return 0xFFFFFF & ((((uint32_t)n) << 16) + (m << 8) + spi_send(d));
+    uint8_t n, m;
+    spi_send(a);
+    n = spi_send(b);
+    m = spi_send(c);
+    return 0xFFFFFF & ((((uint32_t)n) << 16) + (m << 8) + spi_send(d));
 }
 
 
@@ -188,53 +188,53 @@ unsigned long spi_transaction (uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
 
 uint8_t attempt_flash(void) {
 
-  Serial.print("Target power on! ...");
+    Serial.print("Target power on! ...");
 
-  if (!target_poweron() ) {
-    Serial.print("No RESET pullup detected! - no target?");
+    if (!target_poweron() ) {
+        Serial.print("No RESET pullup detected! - no target?");
 
-    return 0;   /* Turn on target power */
-  }
+        return 0;   /* Turn on target power */
+    }
 
-  Serial.print("\nStarting Program Mode");
+    Serial.print("\nStarting Program Mode");
 
-  if (!target_programming_mode() ) {
-    Serial.println("FAIL: Enable programming mode.");
-    return 0;
-  }
+    if (!target_programming_mode() ) {
+        Serial.println("FAIL: Enable programming mode.");
+        return 0;
+    }
 
-  if (!target_identify() ) {
-    return 0;   /* Figure out what kind of CPU */
-  }
+    if (!target_identify() ) {
+        return 0;   /* Figure out what kind of CPU */
+    }
 
-  Serial.print("Searching for image...\n");
-  if (!target_findimage() ) {
-    Serial.print(" Not Found\n");
+    Serial.print("Searching for image...\n");
+    if (!target_findimage() ) {
+        Serial.print(" Not Found\n");
 
-    return 0;   /* look for an image */
-  }
+        return 0;   /* look for an image */
+    }
 
 
-  Serial.print("\nSetting fuses for programming");
+    Serial.print("\nSetting fuses for programming");
 
-  if (!target_progfuses() ) {
-    return 0;   /* get fuses ready to program */
-  }
+    if (!target_progfuses() ) {
+        return 0;   /* get fuses ready to program */
+    }
 
-  Serial.print("\nProgramming device: ");
+    Serial.print("\nProgramming device: ");
 
-  if (!target_program() ) {
-    Serial.println("\nFlash Write Failed");
-    return 0;   /* Program the image */
-  }
+    if (!target_program() ) {
+        Serial.println("\nFlash Write Failed");
+        return 0;   /* Program the image */
+    }
 
-  Serial.print("\nRestoring normal fuses");
+    Serial.print("\nRestoring normal fuses");
 
-  if (!target_normfuses() ) {
-    return 0;   /* reset fuses to normal mode */
-  }
+    if (!target_normfuses() ) {
+        return 0;   /* reset fuses to normal mode */
+    }
 
-  return 1;
+    return 1;
 }
 
 
@@ -251,42 +251,42 @@ uint8_t attempt_flash(void) {
 
 
 void read_image (const image_t *ip) {
-  uint16_t line_length, addr;
-  uint8_t hextext = &ip->image_hexcode_ptr;
-  target_startaddr = 0;
-  target_pagesize = pgm_read_byte(&ip->image_pagesize);
-  uint8_t b, cksum = 0;
+    uint16_t line_length, addr;
+    uint8_t hextext = &ip->image_hexcode_ptr;
+    target_startaddr = 0;
+    target_pagesize = pgm_read_byte(&ip->image_pagesize);
+    uint8_t b, cksum = 0;
 
-  while (1) {
-    line_length = pgm_read_byte(hextext++);
-    cksum = line_length;
+    while (1) {
+        line_length = pgm_read_byte(hextext++);
+        cksum = line_length;
 
-    addr = pgm_read_byte(hextext++); /* address - first byte */
-    cksum += addr;
+        addr = pgm_read_byte(hextext++); /* address - first byte */
+        cksum += addr;
 
-    b = pgm_read_byte(hextext++); /* address - second byte */
-    cksum += b;
-    addr = (addr << 8) + b;
+        b = pgm_read_byte(hextext++); /* address - second byte */
+        cksum += b;
+        addr = (addr << 8) + b;
 
-    if (target_startaddr == 0) {
-      target_startaddr = addr;
-    } else if (addr == 0) {
-      break;
+        if (target_startaddr == 0) {
+            target_startaddr = addr;
+        } else if (addr == 0) {
+            break;
+        }
+
+        cksum += pgm_read_byte(hextext++); /* record type */
+
+        for (uint8_t i = 0; i < line_length; i++) {
+            b = pgm_read_byte(hextext++); /* data */
+            target_code[addr++ - target_startaddr] = b;
+            cksum += b;
+        }
+        cksum += pgm_read_byte(hextext++); /* checksum */
+        if (cksum != 0) {
+            Serial.println("ERROR: Bad checksum: ");
+            Serial.print(cksum, HEX);
+        }
     }
-
-    cksum += pgm_read_byte(hextext++); /* record type */
-
-    for (uint8_t i = 0; i < line_length; i++) {
-      b = pgm_read_byte(hextext++); /* data */
-      target_code[addr++ - target_startaddr] = b;
-      cksum += b;
-    }
-    cksum += pgm_read_byte(hextext++); /* checksum */
-    if (cksum != 0) {
-      Serial.println("ERROR: Bad checksum: ");
-      Serial.print(cksum, HEX);
-    }
-  }
 }
 
 /*
@@ -298,33 +298,33 @@ void read_image (const image_t *ip) {
 */
 
 boolean target_findimage () {
-  const image_t *ip;
-  /*
-     Search through our table of chip aliases first
-  */
-  for (uint8_t i = 0; i < sizeof(aliases) / sizeof(aliases[0]); i++) {
-    const alias_t *a = &aliases[i];
-    if (a->real_chipsig == target_type) {
-      Serial.print("  Compatible bootloader for ");
-      Serial.println(a->alias_chipname);
-      target_type = a->alias_chipsig;  /* Overwrite chip signature */
-      break;
+    const image_t *ip;
+    /*
+       Search through our table of chip aliases first
+    */
+    for (uint8_t i = 0; i < sizeof(aliases) / sizeof(aliases[0]); i++) {
+        const alias_t *a = &aliases[i];
+        if (a->real_chipsig == target_type) {
+            Serial.print("  Compatible bootloader for ");
+            Serial.println(a->alias_chipname);
+            target_type = a->alias_chipsig;  /* Overwrite chip signature */
+            break;
+        }
     }
-  }
-  /*
-     Search through our table of self-contained images.
-  */
-  for (uint8_t i = 0; i < sizeof(images) / sizeof(images[0]); i++) {
-    target_flashptr = ip = images[i];
-    if (ip && (pgm_read_word(&ip->image_chipsig) == target_type)) {
-      Serial.print("  Found \"");
-      Serial.print(&ip->image_chipname[0]);
-      Serial.print("\n");
-      read_image(ip);
-      return true;
+    /*
+       Search through our table of self-contained images.
+    */
+    for (uint8_t i = 0; i < sizeof(images) / sizeof(images[0]); i++) {
+        target_flashptr = ip = images[i];
+        if (ip && (pgm_read_word(&ip->image_chipsig) == target_type)) {
+            Serial.print("  Found \"");
+            Serial.print(&ip->image_chipname[0]);
+            Serial.print("\n");
+            read_image(ip);
+            return true;
+        }
     }
-  }
-  return (false);
+    return (false);
 }
 
 /*
@@ -335,26 +335,26 @@ boolean target_findimage () {
 
 void target_setfuse(uint8_t f, uint8_t fuse_byte) {
 
-  if (f) {
-    Serial.print(f, HEX);
-    Serial.print(" ");
-    Serial.print(spi_transaction(0xAC, fuse_byte, 0x00, f), HEX);
-  }
+    if (f) {
+        Serial.print(f, HEX);
+        Serial.print(" ");
+        Serial.print(spi_transaction(0xAC, fuse_byte, 0x00, f), HEX);
+    }
 
 }
 
 
 boolean target_progfuses () {
-  Serial.print("\nLCK: ");
-  target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_PROT]), 0xE0);
-  Serial.print(" L:");
-  target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_LOW]), 0xA0);
-  Serial.print("H:");
-  target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_HIGH]), 0xA8);
-  Serial.print(" E:");
-  target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_EXT]), 0xA4);
-  Serial.println();
-  return true; 			/* */
+    Serial.print("\nLCK: ");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_PROT]), 0xE0);
+    Serial.print(" L:");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_LOW]), 0xA0);
+    Serial.print("H:");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_HIGH]), 0xA8);
+    Serial.print(" E:");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_progfuses[FUSE_EXT]), 0xA4);
+    Serial.println();
+    return true; 			/* */
 }
 
 /*
@@ -363,35 +363,35 @@ boolean target_progfuses () {
 */
 
 boolean target_program () {
-  int length = 512; 				/* actual length */
+    int length = 512; 				/* actual length */
 
-  target_addr = target_startaddr >> 1; 		/* word address */
-  buff = target_code;
+    target_addr = target_startaddr >> 1; 		/* word address */
+    buff = target_code;
 
-  spi_transaction(0xAC, 0x80, 0, 0); 	/* chip erase */
-  delay(1000);
+    spi_transaction(0xAC, 0x80, 0, 0); 	/* chip erase */
+    delay(1000);
 
-  if (target_pagesize < 1)  {
-    return false;
+    if (target_pagesize < 1)  {
+        return false;
 
-  }
-
-  int page = current_page(target_addr);
-  int byte_to_send = 0;
-  while (byte_to_send < length) {
-    if (page != current_page(target_addr)) {
-      commit(page);
-      page = current_page(target_addr);
     }
 
-    spi_transaction(0x40, target_addr >> 8 & 0xFF, target_addr & 0xFF, buff[byte_to_send++]);
-    spi_transaction(0x48, target_addr >> 8 & 0xFF, target_addr & 0xFF, buff[byte_to_send++]);
-    target_addr++;
-  }
+    int page = current_page(target_addr);
+    int byte_to_send = 0;
+    while (byte_to_send < length) {
+        if (page != current_page(target_addr)) {
+            commit(page);
+            page = current_page(target_addr);
+        }
 
-  commit(page);
+        spi_transaction(0x40, target_addr >> 8 & 0xFF, target_addr & 0xFF, buff[byte_to_send++]);
+        spi_transaction(0x48, target_addr >> 8 & 0xFF, target_addr & 0xFF, buff[byte_to_send++]);
+        target_addr++;
+    }
 
-  return true; 			/*  */
+    commit(page);
+
+    return true; 			/*  */
 }
 
 /*
@@ -400,17 +400,17 @@ boolean target_program () {
    based programming
 */
 boolean target_normfuses () {
-  Serial.print("\n  Lock: ");
-  target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_PROT]), 0xE0);
-  Serial.print(" L:");
-  target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_LOW]), 0xA0);
-  Serial.print("  H:");
-  target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_HIGH]), 0xA8);
-  Serial.print("  E:");
-  target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_EXT]), 0xA4);
+    Serial.print("\n  Lock: ");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_PROT]), 0xE0);
+    Serial.print(" L:");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_LOW]), 0xA0);
+    Serial.print("  H:");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_HIGH]), 0xA8);
+    Serial.print("  E:");
+    target_setfuse( pgm_read_byte(&target_flashptr->image_normfuses[FUSE_EXT]), 0xA4);
 
-  Serial.println();
-  return true; 			/* */
+    Serial.println();
+    return true; 			/* */
 }
 
 /*
@@ -419,97 +419,97 @@ boolean target_normfuses () {
    the relevant IO pin of THIS arduino.)
 */
 boolean target_poweron () {
-  uint16_t result;
+    uint16_t result;
 
-  digitalWrite(POWER, LOW);
-  pinMode(POWER, OUTPUT);
-  digitalWrite(POWER, HIGH);
-  digitalWrite(RESET, LOW);  // reset it right away.
-  pinMode(RESET, OUTPUT);
-  /*
-     Check if the target is pulling RESET HIGH by reverting to input
-  */
-  delay(5);
-  pinMode(RESET, INPUT);
-  delay(1);
-  if (digitalRead(RESET) != HIGH) {
-    return false;
-  }
-  pinMode(RESET, OUTPUT);
+    digitalWrite(POWER, LOW);
+    pinMode(POWER, OUTPUT);
+    digitalWrite(POWER, HIGH);
+    digitalWrite(RESET, LOW);  // reset it right away.
+    pinMode(RESET, OUTPUT);
+    /*
+       Check if the target is pulling RESET HIGH by reverting to input
+    */
+    delay(5);
+    pinMode(RESET, INPUT);
+    delay(1);
+    if (digitalRead(RESET) != HIGH) {
+        return false;
+    }
+    pinMode(RESET, OUTPUT);
 
-  delay(200);
-  return true;
+    delay(200);
+    return true;
 }
 
 boolean target_programming_mode() {
 
 
-  uint16_t result;
+    uint16_t result;
 
-  pinMode(13, INPUT); // restore to default
-  spi_init();
-  // following delays may not work on all targets...
-  pinMode(RESET, OUTPUT);
-  digitalWrite(RESET, HIGH);
-  pinMode(SCK, OUTPUT);
-  digitalWrite(SCK, LOW);
-  delay(50);
-  digitalWrite(RESET, LOW);
-  delay(50);
-  pinMode(MISO, INPUT);
-  pinMode(MOSI, OUTPUT);
-  result = spi_transaction(0xAC, 0x53, 0x00, 0x00);
-  in_programming_mode = 1;
+    pinMode(13, INPUT); // restore to default
+    spi_init();
+    // following delays may not work on all targets...
+    pinMode(RESET, OUTPUT);
+    digitalWrite(RESET, HIGH);
+    pinMode(SCK, OUTPUT);
+    digitalWrite(SCK, LOW);
+    delay(50);
+    digitalWrite(RESET, LOW);
+    delay(50);
+    pinMode(MISO, INPUT);
+    pinMode(MOSI, OUTPUT);
+    result = spi_transaction(0xAC, 0x53, 0x00, 0x00);
+    in_programming_mode = 1;
 
-  if ((result & 0xFF00) != 0x5300) {
+    if ((result & 0xFF00) != 0x5300) {
 
-    return false;
-  }
-  return true;
+        return false;
+    }
+    return true;
 }
 
 boolean target_poweroff () {
-  SPCR = 0;         /* reset SPI */
-  digitalWrite(MISO, 0);    /* Make sure pullups are off too */
-  pinMode(MISO, INPUT);
-  digitalWrite(MOSI, 0);
-  pinMode(MOSI, INPUT);
-  digitalWrite(SCK, 0);
-  pinMode(SCK, INPUT);
-  digitalWrite(RESET, 0);
-  pinMode(RESET, INPUT);
-  in_programming_mode = 0;
+    SPCR = 0;         /* reset SPI */
+    digitalWrite(MISO, 0);    /* Make sure pullups are off too */
+    pinMode(MISO, INPUT);
+    digitalWrite(MOSI, 0);
+    pinMode(MOSI, INPUT);
+    digitalWrite(SCK, 0);
+    pinMode(SCK, INPUT);
+    digitalWrite(RESET, 0);
+    pinMode(RESET, INPUT);
+    in_programming_mode = 0;
 
-  digitalWrite(POWER, LOW);
-  delay(200);
-  pinMode(POWER, INPUT);
-  return true;
+    digitalWrite(POWER, LOW);
+    delay(200);
+    pinMode(POWER, INPUT);
+    return true;
 }
 
 void commit (int addr) {
-  Serial.print("  Commit Page: ");
-  Serial.print(addr, HEX);
-  Serial.print(":");
-  Serial.println(spi_transaction(0x4C, (addr >> 8) & 0xFF, addr & 0xFF, 0), HEX);
-  delay(100);
+    Serial.print("  Commit Page: ");
+    Serial.print(addr, HEX);
+    Serial.print(":");
+    Serial.println(spi_transaction(0x4C, (addr >> 8) & 0xFF, addr & 0xFF, 0), HEX);
+    delay(100);
 }
 
 int current_page (int addr) {
-  switch (target_pagesize) {
+    switch (target_pagesize) {
     case 32:
-      return target_addr & 0xFFFFFFF0;
+        return target_addr & 0xFFFFFFF0;
     case 64:
-      return target_addr & 0xFFFFFFE0;
+        return target_addr & 0xFFFFFFE0;
     case 128:
-      return target_addr & 0xFFFFFFC0;
+        return target_addr & 0xFFFFFFC0;
     default:
-      return target_addr;
-  }
+        return target_addr;
+    }
 }
 
 
 uint16_t read_signature () {
-  uint8_t sig_middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
-  uint8_t sig_low = spi_transaction(0x30, 0x00, 0x02, 0x00);
-  return ((sig_middle << 8) + sig_low);
+    uint8_t sig_middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
+    uint8_t sig_low = spi_transaction(0x30, 0x00, 0x02, 0x00);
+    return ((sig_middle << 8) + sig_low);
 }
