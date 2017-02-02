@@ -222,7 +222,7 @@ uint8_t attempt_flash(void) {
     target_erase();
 
     Serial.print("\nProgramming device: ");
-    if (!target_program() ) {
+    if (!target_program_from_storage() ) {
         Serial.println("Flash Write Failed");
         return 0;   /* Program the image */
     }
@@ -371,6 +371,47 @@ boolean target_program () {
     }
 
     commit(page);
+    return true;
+}
+
+
+
+boolean target_program_from_storage () {
+    target_startaddr = 0;
+    image_data_ptr = &target_flashptr->image_hexcode_ptr;
+
+    while (1) {
+        record_checksum = 0;
+        uint16_t line_length = read_byte_from_image();
+        uint16_t addr = ( read_byte_from_image() << 8) + read_byte_from_image();
+        /* address - first byte, address - second byte */
+        if (target_startaddr == 0) {
+            target_startaddr = addr;
+        } else if (addr == 0) {
+            break;
+        }
+        read_byte_from_image(); /* record type - we discard this */
+
+        target_addr = (addr++ - target_startaddr) >> 1;
+        int page = current_page(target_addr);
+
+        for (uint8_t i = 0; i < line_length; i++) {
+            if (page != current_page(target_addr)) {
+                commit(page);
+                page = current_page(target_addr);
+            }
+            spi_transaction(0x40, target_addr >> 8 & 0xFF, target_addr & 0xFF, read_byte_from_image());
+            spi_transaction(0x48, target_addr >> 8 & 0xFF, target_addr & 0xFF, read_byte_from_image());
+            target_addr++;
+        }
+
+        commit(page);
+
+        read_byte_from_image(); /* read the checksum */
+        if (record_checksum != 0) { /* at this point, the checksum + the content should be 0 */
+            return false;
+        }
+    }
     return true;
 }
 
