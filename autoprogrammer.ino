@@ -336,7 +336,6 @@ boolean target_findimage () {
 void target_setfuse(uint8_t f, uint8_t fuse_byte) {
 
     if (f) {
-        Serial.print("\n  Lock: ");
         Serial.print(f, HEX);
         Serial.print(" ");
         Serial.print(spi_transaction(0xAC, fuse_byte, 0x00, f), HEX);
