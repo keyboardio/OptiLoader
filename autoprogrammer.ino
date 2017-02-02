@@ -181,19 +181,6 @@ unsigned long spi_transaction (uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
 }
 
 
-void end_programming_mode (void) {
-    SPCR = 0; 				/* reset SPI */
-    digitalWrite(MISO, 0); 		/* Make sure pullups are off too */
-    pinMode(MISO, INPUT);
-    digitalWrite(MOSI, 0);
-    pinMode(MOSI, INPUT);
-    digitalWrite(SCK, 0);
-    pinMode(SCK, INPUT);
-    digitalWrite(RESET, 0);
-    pinMode(RESET, INPUT);
-    in_programming_mode = 0;
-}
-
 
 
 uint8_t attempt_flash(void) {
@@ -462,7 +449,17 @@ boolean target_programming_mode() {
 }
 
 boolean target_poweroff () {
-    end_programming_mode();
+        SPCR = 0;         /* reset SPI */
+    digitalWrite(MISO, 0);    /* Make sure pullups are off too */
+    pinMode(MISO, INPUT);
+    digitalWrite(MOSI, 0);
+    pinMode(MOSI, INPUT);
+    digitalWrite(SCK, 0);
+    pinMode(SCK, INPUT);
+    digitalWrite(RESET, 0);
+    pinMode(RESET, INPUT);
+    in_programming_mode = 0;
+    
     digitalWrite(POWER, LOW);
     delay(200);
     pinMode(POWER, INPUT);
