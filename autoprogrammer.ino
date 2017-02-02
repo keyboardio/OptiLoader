@@ -180,25 +180,6 @@ unsigned long spi_transaction (uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
     return 0xFFFFFF & ((((uint32_t)n)<<16)+(m<<8) + spi_send(d));
 }
 
-uint16_t start_programming_mode () {
-    uint16_t result;
-
-    pinMode(13, INPUT); // restore to default
-    spi_init();
-    // following delays may not work on all targets...
-    pinMode(RESET, OUTPUT);
-    digitalWrite(RESET, HIGH);
-    pinMode(SCK, OUTPUT);
-    digitalWrite(SCK, LOW);
-    delay(50);
-    digitalWrite(RESET, LOW);
-    delay(50);
-    pinMode(MISO, INPUT);
-    pinMode(MOSI, OUTPUT);
-    result = spi_transaction(0xAC, 0x53, 0x00, 0x00);
-    in_programming_mode = 1;
-    return result;
-}
 
 void end_programming_mode (void) {
     SPCR = 0; 				/* reset SPI */
@@ -448,8 +429,29 @@ boolean target_poweron () {
     pinMode(RESET, OUTPUT);
 
     delay(200);
-    Serial.print("\nStarting Program Mode");
-    result = start_programming_mode();
+    return true;
+}
+
+boolean target_programming_mode() {
+
+
+      uint16_t result;
+
+    pinMode(13, INPUT); // restore to default
+    spi_init();
+    // following delays may not work on all targets...
+    pinMode(RESET, OUTPUT);
+    digitalWrite(RESET, HIGH);
+    pinMode(SCK, OUTPUT);
+    digitalWrite(SCK, LOW);
+    delay(50);
+    digitalWrite(RESET, LOW);
+    delay(50);
+    pinMode(MISO, INPUT);
+    pinMode(MOSI, OUTPUT);
+    result = spi_transaction(0xAC, 0x53, 0x00, 0x00);
+    in_programming_mode = 1;
+
     if ((result & 0xFF00) != 0x5300) {
         Serial.print(" - Failed, result = 0x");
         Serial.print(result, HEX);
