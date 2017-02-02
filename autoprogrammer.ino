@@ -218,6 +218,9 @@ uint8_t attempt_flash(void) {
         return 0;   /* get fuses ready to program */
     }
 
+    Serial.print("\nErasing device: ");
+    target_erase();
+
     Serial.print("\nProgramming device: ");
     if (!target_program() ) {
         Serial.println("Flash Write Failed");
@@ -340,6 +343,11 @@ boolean target_progfuses () {
     return true; 			/* */
 }
 
+void target_erase() {
+    spi_transaction(0xAC, 0x80, 0, 0); 	/* chip erase */
+    delay(1000);
+}
+
 /*
    target_program
    Actually program the image into the target chip
@@ -347,15 +355,11 @@ boolean target_progfuses () {
 
 boolean target_program () {
     int length = 512; 				/* actual length */
-    target_addr = target_startaddr >> 1; 		/* word address */
-    spi_transaction(0xAC, 0x80, 0, 0); 	/* chip erase */
-    delay(1000);
-    if (target_pagesize < 1)  {
-        return false;
-    }
-
-    int page = current_page(target_addr);
     int byte_to_send = 0;
+
+    target_addr = target_startaddr >> 1; 		/* word address */
+    int page = current_page(target_addr);
+
     while (byte_to_send < length) {
         if (page != current_page(target_addr)) {
             commit(page);
