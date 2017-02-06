@@ -412,6 +412,7 @@ bool read_image () {
     for (uint8_t i = 0; i < line_length; i++) {
       read_byte_from_image(); /* data */
     }
+    Serial.print("Checksum :");
     read_byte_from_image(); /* checksum */
     Serial.println("");
     if (record_checksum != 0) {
@@ -503,7 +504,13 @@ boolean target_program_from_storage () {
   while (1) {
     record_checksum = 0;
     uint16_t line_length = read_byte_from_image();
+    Serial.print("Line length :");
+    Serial.println(line_length);
+    
     uint16_t addr = ( read_byte_from_image() << 8) + read_byte_from_image();
+    Serial.print("Address: ");
+    Serial.println(addr);
+    
     /* address - first byte, address - second byte */
     if (target_startaddr == 0) {
       target_startaddr = addr;
@@ -515,7 +522,7 @@ boolean target_program_from_storage () {
     target_addr = (addr++ - target_startaddr) >> 1;
     int page = current_page(target_addr);
 
-    for (uint8_t i = 0; i < line_length; i++) {
+    for (uint8_t i = 0; i < line_length/2; i++) {
       if (page != current_page(target_addr)) {
         commit(page);
         page = current_page(target_addr);
@@ -529,8 +536,10 @@ boolean target_program_from_storage () {
 
     read_byte_from_image(); /* read the checksum */
     if (record_checksum != 0) { /* at this point, the checksum + the content should be 0 */
+      Serial.println("Checksum fail");
       return false;
     }
+    Serial.println("");
   }
   return true;
 }
