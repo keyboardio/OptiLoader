@@ -36,7 +36,7 @@ const alias_t aliases[] = {
  */
 
 const char atmega_image[] PROGMEM = {
-#include "generated/atmega32u4.h"
+//#include "generated/atmega32u4.h"
 };
 const image_t PROGMEM image_32u4 = {
     { "atmega32u4"    } ,
